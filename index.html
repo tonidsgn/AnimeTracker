@@ -50,24 +50,46 @@
 
     .top-controls {
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       gap: 12px;
       margin-bottom: 2rem;
-      justify-content: center;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 0 18px;
       align-items: center;
+      overflow-x: auto;
+      scrollbar-width: thin;
     }
 
-    input[type="text"],
-    input[type="number"],
-    select {
-      font-family: inherit;
+    .top-controls input[type="text"] {
+      flex-grow: 5;
+      min-width: 220px;
+    }
+
+    .top-controls input[type="number"] {
+      min-width: 100px;
+      text-align: center;
+    }
+
+    .top-controls select {
+      min-width: 170px;
+      padding-right: 35px;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 12px;
+    }
+
+    .top-controls input,
+    .top-controls select {
       font-size: 0.97rem;
       padding: 10px 14px;
       border-radius: 8px;
       border: 1px solid #333;
       background: #111111;
       color: #eee;
-      min-width: 140px;
     }
 
     input:focus, select:focus {
@@ -89,6 +111,7 @@
       align-items: center;
       justify-content: center;
       transition: all 0.18s ease;
+      flex-shrink: 0;
     }
 
     .btn-action:hover {
@@ -96,7 +119,9 @@
       color: #60a5fa;
     }
 
-    .btn-add    { font-size: 1.4rem; }
+    .btn-add    { font-size: 1.4rem; background: #f97316; color: white; }
+    .btn-add:hover    { background: #ea580c; }
+
     .btn-export { font-size: 1.2rem; }
     .btn-import { font-size: 1.2rem; }
 
@@ -112,6 +137,7 @@
       display: flex;
       align-items: center;
       gap: 16px;
+      flex-wrap: nowrap;
       transition: all 0.2s ease;
       cursor: grab;
       user-select: none;
@@ -127,7 +153,6 @@
     .anime-card.dragging {
       opacity: 0.4;
       transform: scale(1.02);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
     }
 
     .anime-title { 
@@ -141,28 +166,43 @@
     }
 
     .episodes {
-      flex: 0 0 auto;
-      font-size: 0.9rem;
-      color: #ccc;
+      flex: 0 0 140px;
       display: flex;
       align-items: center;
-      gap: 6px;
-      min-width: 110px;
       justify-content: center;
+      gap: 6px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 4px 8px;
     }
 
     .episodes button {
       background: transparent;
-      border: 1px solid #444;
-      color: #bbb;
-      padding: 4px 8px;
-      font-size: 0.8rem;
-      min-width: 28px;
+      border: none;
+      color: #9ca3af;
+      font-size: 1.1rem;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
     }
 
-    .episodes button:hover { background: #222; color: #fff; }
+    .episodes button:hover {
+      color: white;
+      background: #2d3748;
+      border-radius: 4px;
+    }
 
-    .episodes span { min-width: 60px; text-align: center; }
+    .episodes span {
+      min-width: 50px;
+      text-align: center;
+      font-size: 0.95rem;
+      color: #e0e0e0;
+    }
 
     .status {
       flex: 0 0 auto;
@@ -171,7 +211,7 @@
       border-radius: 20px;
       font-weight: 500;
       text-align: center;
-      min-width: 90px;
+      min-width: 110px;
     }
 
     .status-viendo     { background: #1e40af22; color: #60a5fa; }
@@ -244,17 +284,21 @@
       flex-wrap: wrap;
     }
 
-    .page-btn {
+    .page-btn, .ellipsis {
       padding: 8px 12px;
       border-radius: 6px;
       background: #1f2937;
       color: #9ca3af;
       border: none;
-      cursor: pointer;
       font-size: 0.95rem;
       min-width: 36px;
       text-align: center;
       transition: all 0.18s ease;
+    }
+
+    .ellipsis {
+      background: transparent;
+      cursor: default;
     }
 
     .page-btn:hover {
@@ -362,13 +406,13 @@
     <h1 onclick="location.reload()">
       <span class="title-anime">Anime</span><span class="title-tracker">Tracker</span>
     </h1>
-    <div class="subtitle">Mi lista de animes favoritos</div>
+    <div class="subtitle">Seguimiento de mis animes favoritos</div>
   </header>
 
   <div class="top-controls">
     <input type="text" id="animeTitle" placeholder="Nombre del anime..." autocomplete="off">
-    <input type="number" id="animeEpisodes" placeholder="Vistos" min="0" value="0" style="width: 90px;">
-    <input type="number" id="animeTotalEp" placeholder="Total" min="0" value="" style="width: 90px;">
+    <input type="number" id="animeEpisodes" placeholder="Vistos" min="0" value="0">
+    <input type="number" id="animeTotalEp" placeholder="Total" min="0" value="">
     <select id="animeStatus">
       <option value="viendo">Viendo</option>
       <option value="pendiente">Pendiente</option>
@@ -408,7 +452,7 @@
     <input type="number" id="editEpisodes" min="0" placeholder="Episodios vistos">
 
     <label for="editTotalEp">Total de episodios</label>
-    <input type="number" id="editTotalEp" min="0" placeholder="Total episodios (vacío = desconocido)">
+    <input type="number" id="editTotalEp" min="0" placeholder="Total episodios (0 = desconocido)">
 
     <label for="editStatus">Estado</label>
     <select id="editStatus">
@@ -426,8 +470,8 @@
 </div>
 
 <script>
-  const STORAGE_KEY = 'anime-tracker-2026-v21';
-  const ITEMS_PER_PAGE = 5; // Máximo 5 series por página
+  const STORAGE_KEY = 'anime-tracker-2026-v32';
+  const ITEMS_PER_PAGE = 5;
   let currentPage = 1;
   let animes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
   let editingIndex = -1;
@@ -516,7 +560,7 @@
 
     editTitleInput.value = anime.title;
     editEpInput.value = anime.episodes || 0;
-    editTotalInput.value = anime.totalEpisodes !== null ? anime.totalEpisodes : '';
+    editTotalInput.value = anime.totalEpisodes != null ? anime.totalEpisodes : 0;
     editStatusInput.value = anime.status;
 
     editModal.style.display = 'flex';
@@ -533,17 +577,13 @@
     const newEp = parseInt(editEpInput.value) || 0;
     anime.episodes = newEp;
 
-    const newTotal = editTotalInput.value.trim() ? parseInt(editTotalInput.value) : null;
-    anime.totalEpisodes = newTotal;
+    const newTotalRaw = editTotalInput.value.trim();
+    anime.totalEpisodes = (newTotalRaw === '' || newTotalRaw === '0') ? null : parseInt(newTotalRaw);
 
     anime.status = editStatusInput.value;
 
-    if (newTotal !== null && anime.episodes > newTotal) {
-      anime.episodes = newTotal;
-    }
-
-    if (newTotal !== null && anime.episodes === newTotal && anime.status !== 'terminada') {
-      anime.status = 'terminada';
+    if (anime.totalEpisodes !== null && anime.episodes > anime.totalEpisodes) {
+      anime.episodes = anime.totalEpisodes;
     }
 
     saveAnimes();
@@ -593,7 +633,68 @@
     event.target.value = '';
   }
 
-  // Drag & Drop
+  // Función para renderizar paginación inteligente (máximo 5 números visibles)
+  function renderPagination(totalPages) {
+    pagination.innerHTML = '';
+
+    if (totalPages <= 1) return;
+
+    const maxVisible = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+    // Ajustar si estamos cerca del final
+    if (endPage - startPage + 1 < maxVisible) {
+      startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    // Botón "1" y puntos si es necesario
+    if (startPage > 1) {
+      const btn1 = document.createElement('button');
+      btn1.className = 'page-btn';
+      btn1.textContent = '1';
+      btn1.onclick = () => { currentPage = 1; renderAnimes(); };
+      pagination.appendChild(btn1);
+
+      if (startPage > 2) {
+        const ellipsis = document.createElement('span');
+        ellipsis.className = 'ellipsis';
+        ellipsis.textContent = '...';
+        pagination.appendChild(ellipsis);
+      }
+    }
+
+    // Números visibles
+    for (let p = startPage; p <= endPage; p++) {
+      const btn = document.createElement('button');
+      btn.className = 'page-btn';
+      btn.textContent = p;
+      if (p === currentPage) btn.classList.add('active');
+      btn.onclick = () => {
+        currentPage = p;
+        renderAnimes();
+      };
+      pagination.appendChild(btn);
+    }
+
+    // Puntos y última página si es necesario
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        const ellipsis = document.createElement('span');
+        ellipsis.className = 'ellipsis';
+        ellipsis.textContent = '...';
+        pagination.appendChild(ellipsis);
+      }
+
+      const btnLast = document.createElement('button');
+      btnLast.className = 'page-btn';
+      btnLast.textContent = totalPages;
+      btnLast.onclick = () => { currentPage = totalPages; renderAnimes(); };
+      pagination.appendChild(btnLast);
+    }
+  }
+
+  // Render principal
   function renderAnimes() {
     list.innerHTML = '';
     emptyMsg.style.display = animes.length ? 'none' : 'block';
@@ -641,7 +742,7 @@
         </div>
       `;
 
-      // Drag events
+      // Drag & drop
       card.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('text/plain', globalI);
         card.classList.add('dragging');
@@ -678,21 +779,7 @@
       list.appendChild(card);
     });
 
-    // Paginación
-    pagination.innerHTML = '';
-    if (totalPages > 1) {
-      for (let p = 1; p <= totalPages; p++) {
-        const btn = document.createElement('button');
-        btn.className = 'page-btn';
-        btn.textContent = p;
-        if (p === currentPage) btn.classList.add('active');
-        btn.onclick = () => {
-          currentPage = p;
-          renderAnimes();
-        };
-        pagination.appendChild(btn);
-      }
-    }
+    renderPagination(totalPages);
   }
 
   titleInput.addEventListener('keypress', e => {
