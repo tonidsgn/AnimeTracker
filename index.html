@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AnimeTracker</title>
+
+  <link rel="icon" type="image/png" sizes="32x32" href="https://www.icons101.com/icon_png/size_32/id_74982/Naruto.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #000000;
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 40px 20px 140px;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    header { text-align: center; margin-bottom: 3.5rem; }
+
+    h1 {
+      font-family: 'Bangers', cursive;
+      font-size: 4.2rem;
+      font-weight: 400;
+      letter-spacing: -2px;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.15s ease;
+    }
+
+    h1:hover { transform: scale(1.05); }
+
+    .title-anime { color: #f97316; }
+    .title-tracker { color: #2d2d2d; }
+
+    .subtitle {
+      color: #aaa;
+      font-size: 1.1rem;
+      font-weight: 400;
+      margin-top: 0.4rem;
+    }
+
+    .top-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 2rem;
+      justify-content: center;
+      align-items: center;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      font-family: inherit;
+      font-size: 0.97rem;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #111111;
+      color: #eee;
+      min-width: 140px;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #f97316;
+      box-shadow: 0 0 0 3px rgba(249,115,22,0.2);
+    }
+
+    .btn-action {
+      width: 38px;
+      height: 38px;
+      border-radius: 6px;
+      background: #1f2937;
+      color: #9ca3af;
+      font-size: 1.3rem;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.18s ease;
+    }
+
+    .btn-action:hover {
+      background: #374151;
+      color: #60a5fa;
+    }
+
+    .btn-add    { font-size: 1.4rem; }
+    .btn-export { font-size: 1.2rem; }
+    .btn-import { font-size: 1.2rem; }
+
+    #importFile { display: none; }
+
+    .anime-list { display: flex; flex-direction: column; gap: 12px; min-height: 300px; }
+
+    .anime-card {
+      background: #111111;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: all 0.2s ease;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .anime-card:active { cursor: grabbing; }
+
+    .anime-card:hover {
+      border-color: #f97316;
+      box-shadow: 0 10px 25px rgba(249,115,22,0.1);
+    }
+
+    .anime-card.dragging {
+      opacity: 0.4;
+      transform: scale(1.02);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+
+    .anime-title { 
+      flex: 2; 
+      font-weight: 500; 
+      font-size: 1.05rem; 
+      min-width: 140px; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+    }
+
+    .episodes {
+      flex: 0 0 auto;
+      font-size: 0.9rem;
+      color: #ccc;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 110px;
+      justify-content: center;
+    }
+
+    .episodes button {
+      background: transparent;
+      border: 1px solid #444;
+      color: #bbb;
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      min-width: 28px;
+    }
+
+    .episodes button:hover { background: #222; color: #fff; }
+
+    .episodes span { min-width: 60px; text-align: center; }
+
+    .status {
+      flex: 0 0 auto;
+      font-size: 0.84rem;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 500;
+      text-align: center;
+      min-width: 90px;
+    }
+
+    .status-viendo     { background: #1e40af22; color: #60a5fa; }
+    .status-pendiente  { background: #92400e22; color: #fbbf24; }
+    .status-terminada  { background: #16653422; color: #4ade80; }
+    .status-abandonada { background: #991b1b22; color: #f87171; }
+
+    .rating {
+      flex: 0 0 auto;
+      display: flex;
+      gap: 1px;
+      min-width: 110px;
+      justify-content: flex-start;
+    }
+
+    .star {
+      font-size: 1.2rem;
+      color: #444;
+      cursor: pointer;
+      transition: color 0.15s ease;
+    }
+
+    .star.filled { color: #fbbf24; }
+
+    .rating:hover .star { color: #fbbf24; }
+    .rating .star:hover ~ .star { color: #444; }
+
+    .actions {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .edit-btn, .delete-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 6px;
+      background: #1f2937;
+      color: #9ca3af;
+      font-size: 1.1rem;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.18s ease;
+    }
+
+    .edit-btn:hover {
+      background: #374151;
+      color: #60a5fa;
+    }
+
+    .delete-btn {
+      background: #1f2937;
+      color: #f87171;
+    }
+
+    .delete-btn:hover {
+      background: #374151;
+      color: #ef4444;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .page-btn {
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: #1f2937;
+      color: #9ca3af;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      min-width: 36px;
+      text-align: center;
+      transition: all 0.18s ease;
+    }
+
+    .page-btn:hover {
+      background: #374151;
+      color: white;
+    }
+
+    .page-btn.active {
+      background: #f97316;
+      color: white;
+      font-weight: bold;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #555;
+      padding: 80px 20px;
+      font-size: 1.1rem;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 6rem;
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    footer a {
+      color: #f97316;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    footer a:hover { text-decoration: underline; }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: #111111;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 24px;
+      width: 90%;
+      max-width: 420px;
+    }
+
+    .modal h2 {
+      margin-bottom: 1.2rem;
+      color: #f97316;
+      font-size: 1.4rem;
+    }
+
+    .modal label {
+      display: block;
+      margin: 1rem 0 0.4rem;
+      font-size: 0.95rem;
+      color: #aaa;
+    }
+
+    .modal input, .modal select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      background: #161616;
+      color: white;
+      font-size: 1rem;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 1.8rem;
+    }
+
+    .modal-btn {
+      padding: 8px 20px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .save-btn   { background: #10b981; color: white; }
+    .save-btn:hover   { background: #059669; }
+    .cancel-btn { background: #374151; color: white; }
+    .cancel-btn:hover { background: #4b5563; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <h1 onclick="location.reload()">
+      <span class="title-anime">Anime</span><span class="title-tracker">Tracker</span>
+    </h1>
+    <div class="subtitle">Mi lista de animes favoritos</div>
+  </header>
+
+  <div class="top-controls">
+    <input type="text" id="animeTitle" placeholder="Nombre del anime..." autocomplete="off">
+    <input type="number" id="animeEpisodes" placeholder="Vistos" min="0" value="0" style="width: 90px;">
+    <input type="number" id="animeTotalEp" placeholder="Total" min="0" value="" style="width: 90px;">
+    <select id="animeStatus">
+      <option value="viendo">Viendo</option>
+      <option value="pendiente">Pendiente</option>
+      <option value="terminada">Terminada</option>
+      <option value="abandonada">Abandonada</option>
+    </select>
+
+    <button class="btn-action btn-add" onclick="addAnime()">+</button>
+    <button class="btn-action" onclick="exportData()">↓</button>
+    <button class="btn-action" onclick="document.getElementById('importFile').click()">↑</button>
+    <input type="file" id="importFile" accept=".json" onchange="importData(event)">
+  </div>
+
+  <div class="anime-list" id="animeList"></div>
+
+  <div class="pagination" id="pagination"></div>
+
+  <div class="empty-state" id="emptyMsg">
+    Aún no has añadido ningún anime...
+  </div>
+
+  <footer>
+    Hecho por <a href="https://x.com/tonidsgn" target="_blank">@tonidsgn</a> utilizando únicamente Grok.
+  </footer>
+
+</div>
+
+<!-- Modal de edición -->
+<div id="editModal" class="modal">
+  <div class="modal-content">
+    <h2>Editar anime</h2>
+
+    <label for="editTitle">Nombre del anime</label>
+    <input type="text" id="editTitle" placeholder="Nombre del anime">
+
+    <label for="editEpisodes">Capítulo por el que voy (vistos)</label>
+    <input type="number" id="editEpisodes" min="0" placeholder="Episodios vistos">
+
+    <label for="editTotalEp">Total de episodios</label>
+    <input type="number" id="editTotalEp" min="0" placeholder="Total episodios (vacío = desconocido)">
+
+    <label for="editStatus">Estado</label>
+    <select id="editStatus">
+      <option value="viendo">Viendo</option>
+      <option value="pendiente">Pendiente</option>
+      <option value="terminada">Terminada</option>
+      <option value="abandonada">Abandonada</option>
+    </select>
+
+    <div class="modal-buttons">
+      <button class="modal-btn cancel-btn" onclick="closeModal()">Cancelar</button>
+      <button class="modal-btn save-btn" onclick="saveEdit()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'anime-tracker-2026-v21';
+  const ITEMS_PER_PAGE = 5; // Máximo 5 series por página
+  let currentPage = 1;
+  let animes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  let editingIndex = -1;
+
+  const titleInput     = document.getElementById('animeTitle');
+  const episodesInput  = document.getElementById('animeEpisodes');
+  const totalEpInput   = document.getElementById('animeTotalEp');
+  const statusSelect   = document.getElementById('animeStatus');
+  const list           = document.getElementById('animeList');
+  const emptyMsg       = document.getElementById('emptyMsg');
+  const pagination     = document.getElementById('pagination');
+  const editModal      = document.getElementById('editModal');
+  const editTitleInput = document.getElementById('editTitle');
+  const editEpInput    = document.getElementById('editEpisodes');
+  const editTotalInput = document.getElementById('editTotalEp');
+  const editStatusInput = document.getElementById('editStatus');
+
+  function saveAnimes() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(animes));
+    renderAnimes();
+  }
+
+  function addAnime() {
+    const title = titleInput.value.trim();
+    if (!title) return alert('Ponle nombre al anime primero');
+
+    const vistos = parseInt(episodesInput.value) || 0;
+    const total  = parseInt(totalEpInput.value) || null;
+
+    animes.push({
+      title,
+      status: statusSelect.value,
+      episodes: vistos,
+      totalEpisodes: total,
+      rating: 0,
+      added: new Date().toISOString()
+    });
+
+    titleInput.value = '';
+    episodesInput.value = '0';
+    totalEpInput.value = '';
+    saveAnimes();
+  }
+
+  function changeStatus(index, newStatus) {
+    const anime = animes[index];
+    anime.status = newStatus;
+
+    if (newStatus === 'terminada' && anime.totalEpisodes !== null && anime.totalEpisodes > 0) {
+      anime.episodes = anime.totalEpisodes;
+    }
+
+    saveAnimes();
+  }
+
+  function updateEpisodes(index, delta) {
+    let current = animes[index].episodes || 0;
+    const total = animes[index].totalEpisodes;
+
+    let nuevo = current + delta;
+    if (nuevo < 0) nuevo = 0;
+    if (total !== null && nuevo > total) nuevo = total;
+
+    const oldStatus = animes[index].status;
+    animes[index].episodes = nuevo;
+
+    if (total !== null) {
+      if (nuevo === total && oldStatus !== 'terminada') {
+        animes[index].status = 'terminada';
+      } else if (nuevo < total && oldStatus === 'terminada') {
+        animes[index].status = 'viendo';
+      }
+    }
+
+    saveAnimes();
+  }
+
+  function setRating(index, stars) {
+    animes[index].rating = stars;
+    saveAnimes();
+  }
+
+  function editAnime(index) {
+    editingIndex = index;
+    const anime = animes[index];
+
+    editTitleInput.value = anime.title;
+    editEpInput.value = anime.episodes || 0;
+    editTotalInput.value = anime.totalEpisodes !== null ? anime.totalEpisodes : '';
+    editStatusInput.value = anime.status;
+
+    editModal.style.display = 'flex';
+  }
+
+  function saveEdit() {
+    if (editingIndex === -1) return;
+
+    const anime = animes[editingIndex];
+
+    const newTitle = editTitleInput.value.trim();
+    if (newTitle) anime.title = newTitle;
+
+    const newEp = parseInt(editEpInput.value) || 0;
+    anime.episodes = newEp;
+
+    const newTotal = editTotalInput.value.trim() ? parseInt(editTotalInput.value) : null;
+    anime.totalEpisodes = newTotal;
+
+    anime.status = editStatusInput.value;
+
+    if (newTotal !== null && anime.episodes > newTotal) {
+      anime.episodes = newTotal;
+    }
+
+    if (newTotal !== null && anime.episodes === newTotal && anime.status !== 'terminada') {
+      anime.status = 'terminada';
+    }
+
+    saveAnimes();
+    closeModal();
+  }
+
+  function closeModal() {
+    editModal.style.display = 'none';
+    editingIndex = -1;
+  }
+
+  function deleteAnime(index) {
+    if (!confirm('¿Eliminar este anime?')) return;
+    animes.splice(index, 1);
+    saveAnimes();
+  }
+
+  function exportData() {
+    if (animes.length === 0) return alert('Nada que exportar');
+    const dataStr = JSON.stringify(animes, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'anime-tracker-' + new Date().toISOString().slice(0,10) + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const imported = JSON.parse(e.target.result);
+        if (!Array.isArray(imported)) throw new Error('Formato inválido');
+        animes = imported;
+        saveAnimes();
+        alert(`¡Importado! (${imported.length} animes)`);
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  }
+
+  // Drag & Drop
+  function renderAnimes() {
+    list.innerHTML = '';
+    emptyMsg.style.display = animes.length ? 'none' : 'block';
+
+    const totalItems = animes.length;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    const pageAnimes = animes.slice(start, end);
+
+    const order = ['viendo', 'pendiente', 'terminada', 'abandonada'];
+    pageAnimes.sort((a,b) => order.indexOf(a.status) - order.indexOf(b.status));
+
+    pageAnimes.forEach((anime, pageI) => {
+      const globalI = start + pageI;
+      const card = document.createElement('div');
+      card.className = 'anime-card';
+      card.draggable = true;
+      card.dataset.globalIndex = globalI;
+
+      const progress = anime.totalEpisodes !== null 
+        ? `${anime.episodes || 0} / ${anime.totalEpisodes}`
+        : `${anime.episodes || 0}`;
+
+      let starsHTML = '';
+      for (let s = 1; s <= 5; s++) {
+        const filled = (anime.rating >= s) ? 'filled' : '';
+        starsHTML += `<span class="star ${filled}" onclick="setRating(${globalI}, ${s})">★</span>`;
+      }
+
+      card.innerHTML = `
+        <div class="anime-title">${anime.title}</div>
+        <div class="episodes">
+          <button onclick="updateEpisodes(${globalI}, -1)">–</button>
+          <span>${progress}</span>
+          <button onclick="updateEpisodes(${globalI}, 1)">+</button>
+        </div>
+        <div class="status status-${anime.status}">
+          ${anime.status.charAt(0).toUpperCase() + anime.status.slice(1)}
+        </div>
+        <div class="rating">${starsHTML}</div>
+        <div class="actions">
+          <button class="edit-btn" onclick="editAnime(${globalI})">✏️</button>
+          <button class="delete-btn" onclick="deleteAnime(${globalI})">🗑</button>
+        </div>
+      `;
+
+      // Drag events
+      card.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', globalI);
+        card.classList.add('dragging');
+      });
+
+      card.addEventListener('dragend', () => {
+        card.classList.remove('dragging');
+        document.querySelectorAll('.anime-card').forEach(c => c.classList.remove('drag-over'));
+      });
+
+      card.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        card.classList.add('drag-over');
+      });
+
+      card.addEventListener('dragleave', () => {
+        card.classList.remove('drag-over');
+      });
+
+      card.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+        const toIndex = parseInt(card.dataset.globalIndex);
+
+        if (fromIndex === toIndex) return;
+
+        const [moved] = animes.splice(fromIndex, 1);
+        animes.splice(toIndex, 0, moved);
+
+        saveAnimes();
+      });
+
+      list.appendChild(card);
+    });
+
+    // Paginación
+    pagination.innerHTML = '';
+    if (totalPages > 1) {
+      for (let p = 1; p <= totalPages; p++) {
+        const btn = document.createElement('button');
+        btn.className = 'page-btn';
+        btn.textContent = p;
+        if (p === currentPage) btn.classList.add('active');
+        btn.onclick = () => {
+          currentPage = p;
+          renderAnimes();
+        };
+        pagination.appendChild(btn);
+      }
+    }
+  }
+
+  titleInput.addEventListener('keypress', e => {
+    if (e.key === 'Enter') addAnime();
+  });
+
+  editModal.addEventListener('click', (e) => {
+    if (e.target === editModal) closeModal();
+  });
+
+  renderAnimes();
+</script>
+
+</body>
+</html>
